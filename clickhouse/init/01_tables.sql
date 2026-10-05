@@ -46,7 +46,7 @@ PARTITION BY toDate(started_at)
 ORDER BY (started_at, player_id);
 
 -- 5 События (связь с игроками матчами и предметами)
-CREATE TABLE OF NOT EXISTS game_events (
+CREATE TABLE IF NOT EXISTS game_events (
     event_id UUID,
     event_time DateTime,
     player_id UInt32,
@@ -54,7 +54,7 @@ CREATE TABLE OF NOT EXISTS game_events (
     item_id UInt16,
     event_type LowCardinality(String),
     game_mode LowCardinality(String),
-    level Uint8,
+    level UInt8,
     score Int32,
     duration_ms UInt32,
     is_anomaly UInt8
