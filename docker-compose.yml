@@ -2,10 +2,11 @@ services:
   clickhouse:
     image: clickhouse/clickhouse-server:24.3
     container_name: clickhouse
+    restart: unless-stopped
     environment:
-      CLICKHOUSE_USER: ${CLICKHOUSE_USER}
-      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
-      CLICKHOUSE_DB: ${CLICKHOUSE_DB}
+      CLICKHOUSE_USER: ${CLICKHOUSE_USER:-default}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-changeme}
+      CLICKHOUSE_DB: ${CLICKHOUSE_DB:-game_analytics}
       CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
     ports:
       - "8123:8123"
@@ -22,14 +23,15 @@ services:
   generator:
     build: ./generator
     container_name: generator
+    restart: unless-stopped
     environment:
       CLICKHOUSE_HOST: clickhouse
-      CLICKHOUSE_USER: ${CLICKHOUSE_USER}
-      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
-      CLICKHOUSE_DB: ${CLICKHOUSE_DB}
-      GENERATOR_SEED: ${GENERATOR_SEED}
-      GENERATOR_BATCH_INTERVAL: ${GENERATOR_BATCH_INTERVAL}
-      GENERATOR_EVENTS_PER_BATCH: ${GENERATOR_EVENTS_PER_BATCH}
+      CLICKHOUSE_USER: ${CLICKHOUSE_USER:-default}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-changeme}
+      CLICKHOUSE_DB: ${CLICKHOUSE_DB:-game_analytics}
+      GENERATOR_SEED: ${GENERATOR_SEED:-42}
+      GENERATOR_BATCH_INTERVAL: ${GENERATOR_BATCH_INTERVAL:-2}
+      GENERATOR_EVENTS_PER_BATCH: ${GENERATOR_EVENTS_PER_BATCH:-100}
     depends_on:
       clickhouse:
         condition: service_healthy

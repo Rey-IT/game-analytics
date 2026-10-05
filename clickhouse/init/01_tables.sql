@@ -1,7 +1,7 @@
 CREATE DATABASE IF NOT EXISTS game_analytics;
 USE game_analytics;
 
--- 1 Игроки
+-- 1. Игроки
 CREATE TABLE IF NOT EXISTS players (
     player_id UInt32,
     username String,
@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS players (
 ) ENGINE = ReplacingMergeTree
 ORDER BY player_id;
 
--- 2 Предметы
+-- 2. Предметы
 CREATE TABLE IF NOT EXISTS items (
     item_id UInt16,
     item_name String,
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS items (
 ) ENGINE = ReplacingMergeTree
 ORDER BY item_id;
 
--- 3 Карты
+-- 3. Карты
 CREATE TABLE IF NOT EXISTS maps (
     map_id UInt8,
     map_name String,
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS maps (
 ) ENGINE = ReplacingMergeTree
 ORDER BY map_id;
 
--- 4 Матчи (связь с игроками и картами)
+-- 4. Матчи
 CREATE TABLE IF NOT EXISTS matches (
     match_id UUID,
     player_id UInt32,
@@ -41,11 +41,11 @@ CREATE TABLE IF NOT EXISTS matches (
     duration_sec UInt32,
     result LowCardinality(String),
     avg_mmr Float32
-) ENGINE =  MergeTree
+) ENGINE = MergeTree
 PARTITION BY toDate(started_at)
 ORDER BY (started_at, player_id);
 
--- 5 События (связь с игроками матчами и предметами)
+-- 5. События
 CREATE TABLE IF NOT EXISTS game_events (
     event_id UUID,
     event_time DateTime,
