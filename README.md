@@ -79,20 +79,6 @@
 
 ---
 
-## Что уже работает
-
-- ✅ ClickHouse поднимается, `healthy`, слушает `8123` (HTTP) и `9000` (native).
-- ✅ Init-скрипты создают 5 таблиц, 1 MV и 1 читающее представление.
-- ✅ Генератор засеивает справочники: **200 игроков, 15 предметов, 5 карт**.
-- ✅ В цикле пишет **4 матча / 80 событий** каждые 2 секунды (значения зависят
-  от `daily_factor` — «суточного профиля»).
-- ✅ За час работы накапливается ~40 тыс. событий, `events_agg_1m` — ~1.3 тыс.
-  строк агрегата.
-- ✅ Все проверки целостности проходят: события разнесены по времени матча,
-  аномалии (`is_anomaly = 1`) выделяются в 3–6 раз по `score`.
-
----
-
 ## Запуск
 
 ```bash
@@ -115,9 +101,9 @@ docker compose logs -f generator
 ```
 
 После старта:
-- ClickHouse HTTP: http://localhost:8123 (ping: `curl http://localhost:8123/ping`)
-- Superset: http://localhost:8088 (появится позже)
-- Jupyter: http://localhost:8888 (появится позже)
+- ClickHouse HTTP: http://localhost:8123 
+- Superset: http://localhost:8088 
+- Jupyter: http://localhost:8888 
 
 ---
 
@@ -127,8 +113,8 @@ docker compose logs -f generator
 |---|---|---|
 | ClickHouse (HTTP) | 8123 | `default` / `clickhouse123` |
 | ClickHouse (native) | 9000 | `default` / `clickhouse123` |
-| Superset | 8088 | `admin` / `admin` (появится позже) |
-| Jupyter | 8888 | без пароля, токен отключён (появится позже) |
+| Superset | 8088 | `admin` / `admin`  |
+| Jupyter | 8888 | без пароля, токен отключён  |
 
 ---
 
@@ -140,8 +126,6 @@ docker compose logs -f generator
 |---|---|
 | `CLICKHOUSE_USER` / `CLICKHOUSE_PASSWORD` | доступ к ClickHouse |
 | `CLICKHOUSE_DB` | имя БД (`game_analytics`) |
-| `POSTGRES_*` | метабаза Superset (появится позже) |
-| `SUPERSET_*` | админ Superset и secret key (появится позже) |
 | `GENERATOR_SEED` | seed генератора (воспроизводимость) |
 | `GENERATOR_BATCH_INTERVAL` | интервал между батчами (сек) |
 | `GENERATOR_EVENTS_PER_BATCH` | базовое число событий в батче |
@@ -194,30 +178,13 @@ game-analytics/
 │   ├── Dockerfile
 │   ├── requirements.txt
 │   └── main.py
-├── superset/
-│   └── (появится позже)
 ├── jupyter/
-│   └── (появится позже)
+│   ├── .ipynb_checkpoints
+│   └── analysis.ipynb
+│
 └── docs/
-    └── (скриншоты появятся позже)
+    └── scrinshots
 ```
-
----
-
-## Разработка (локально, без Docker)
-
-Для правки `generator/main.py` удобно держать venv:
-
-```powershell
-cd game-analytics
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-python -m pip install -r generator/requirements.txt
-python -m pip install exceptiongroup   # для isort в VS Code на Python 3.10
-```
-
-В VS Code: `Ctrl+Shift+P` → **Python: Select Interpreter** → `./.venv/Scripts/python.exe`.
 
 ---
 
