@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
     environment:
       CLICKHOUSE_USER: ${CLICKHOUSE_USER:-default}
-      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-changeme}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-clickhouse123}
       CLICKHOUSE_DB: ${CLICKHOUSE_DB:-game_analytics}
       CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
     ports:
@@ -27,7 +27,7 @@ services:
     environment:
       CLICKHOUSE_HOST: clickhouse
       CLICKHOUSE_USER: ${CLICKHOUSE_USER:-default}
-      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-changeme}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-clickhouse123}
       CLICKHOUSE_DB: ${CLICKHOUSE_DB:-game_analytics}
       GENERATOR_SEED: ${GENERATOR_SEED:-42}
       GENERATOR_BATCH_INTERVAL: ${GENERATOR_BATCH_INTERVAL:-2}
@@ -36,5 +36,47 @@ services:
       clickhouse:
         condition: service_healthy
 
+  superset:
+    image: apache/superset:3.1.0
+    container_name: superset
+    restart: unless-stopped
+    user: "root"
+    ports:
+      - "8088:8088"
+    environment:
+      SUPERSET_SECRET_KEY: "game_analytics_secret_key_fixed_12345"
+    volumes:
+      - superset-data:/app/superset_home
+    entrypoint: >
+      /bin/sh -c "
+      pip install --no-cache-dir clickhouse-connect &&
+      if [ ! -f /app/superset_home/superset.db ]; then
+        superset db upgrade &&
+        superset fab create-admin --username admin --firstname Admin --lastname Admin --email admin@example.com --password admin &&
+        superset init
+      fi &&
+      /usr/bin/run-server.sh
+      "
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+
+  jupyter:
+    image: jupyter/scipy-notebook:latest
+    container_name: jupyter
+    restart: unless-stopped
+    ports:
+      - "8888:8888"
+    environment:
+      JUPYTER_ENABLE_LAB: "yes"
+    volumes:
+      - ./jupyter:/home/jovyan/work
+    command: >
+      start-notebook.sh --ServerApp.token='' --ServerApp.password='' --ServerApp.disable_check_xsrf=True
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+
 volumes:
   clickhouse-data:
+  superset-data:
