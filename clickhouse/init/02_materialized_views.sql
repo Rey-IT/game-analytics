@@ -1,3 +1,4 @@
+USE game_analytics;
 -- 6. Агрегат событий по минутам
 CREATE TABLE IF NOT EXISTS events_agg_1m (
     minute DateTime,
